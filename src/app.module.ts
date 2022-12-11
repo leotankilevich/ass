@@ -6,6 +6,7 @@ import { ApolloDriver, ApolloDriverConfig } from '@nestjs/apollo';
 import { CoffeesModule } from './coffees/coffees.module';
 import { CoffeesResolver } from './coffees/coffees.resolver';
 import { join } from 'path';
+import { CoffeesService } from './coffees/coffees.service';
 
 @Module({
   imports: [
@@ -19,6 +20,6 @@ import { join } from 'path';
     CoffeesModule,
   ],
   controllers: [AppController],
-  providers: [AppService, CoffeesResolver],
+  providers: [AppService, CoffeesResolver, CoffeesService],
 })
 export class AppModule {}
