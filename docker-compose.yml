@@ -48,4 +48,5 @@ networks:
 volumes:
   redis:
     driver: local
+  docker-nest-postgres:
   pgdata:
