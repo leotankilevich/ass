@@ -7,6 +7,10 @@ import { CoffeesModule } from './coffees/coffees.module';
 import { join } from 'path';
 
 import { TypeOrmModule } from '@nestjs/typeorm';
+import { DateScalar } from './common/scalars/date.scalar/date.scalar';
+import { Tea } from './teas/entities/tea.entity/tea.entity';
+import { DrinksResolver } from './drinks/drinks.resolver';
+import { TeasModule } from './teas/teas.module';
 
 @Module({
   imports: [
@@ -25,11 +29,13 @@ import { TypeOrmModule } from '@nestjs/typeorm';
       autoSchemaFile: join(process.cwd(), 'src/schema.gql'),
       buildSchemaOptions: {
         numberScalarMode: 'integer',
+        orphanedTypes: [Tea],
       },
     }),
     CoffeesModule,
+    TeasModule,
   ],
   controllers: [AppController],
-  providers: [AppService],
+  providers: [AppService, DateScalar, DrinksResolver],
 })
 export class AppModule {}

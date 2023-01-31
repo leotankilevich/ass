@@ -4,15 +4,19 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Coffee } from './entities/coffee.entity/coffee.entity';
 import { Repository } from 'typeorm';
 import { UserInputError } from 'apollo-server-express';
+import { UpdateCoffeeInput } from './dto/update-coffee.input/update-coffee.input';
+import { Flavor } from './entities/flavor.entity/flavor.entity';
 
 @Injectable()
 export class CoffeesService {
   constructor(
     @InjectRepository(Coffee)
     private readonly coffeesRepository: Repository<Coffee>,
+    @InjectRepository(Flavor)
+    private readonly flavorsRepository: Repository<Flavor>,
   ) {}
 
-  async indAll() {
+  async findAll() {
     return this.coffeesRepository.find();
   }
 
@@ -27,7 +31,58 @@ export class CoffeesService {
   }
 
   async create(createCoffeeInput: CreateCoffeeInput) {
-    const coffee = await this.coffeesRepository.create(createCoffeeInput);
+    const flavors = await Promise.all(
+      createCoffeeInput.flavors.map((flavor) =>
+        this.preloadFlavorByName(flavor),
+      ),
+    );
+
+    const coffee = this.coffeesRepository.create({
+      ...createCoffeeInput,
+      flavors,
+    });
     return await this.coffeesRepository.save(coffee);
+  }
+
+  async update(id: number, updateCoffeeInput: UpdateCoffeeInput) {
+    const flavors =
+      updateCoffeeInput.flavors &&
+      (await Promise.all(
+        updateCoffeeInput.flavors.map((flavor) =>
+          this.preloadFlavorByName(flavor),
+        ),
+      ));
+
+    const coffee = await this.coffeesRepository.preload({
+      id,
+      ...updateCoffeeInput,
+      flavors,
+    });
+
+    if (!coffee) {
+      throw new UserInputError(`Coffee #${id} doesn't exist`);
+    }
+
+    return await this.coffeesRepository.save(coffee);
+  }
+
+  async remove(id: number) {
+    const coffee = await this.findOne(id);
+
+    return this.coffeesRepository.remove(coffee);
+  }
+
+  private async preloadFlavorByName(name: string): Promise<Flavor> {
+    const existingFlavor = await this.flavorsRepository.findOne({
+      where: { name },
+    });
+
+    console.log(existingFlavor);
+
+    if (existingFlavor) {
+      return existingFlavor;
+    }
+
+    return this.flavorsRepository.create({ name });
   }
 }

@@ -1,28 +1,25 @@
+import { Drink } from '../../../common/interfaces/drink.interface/drink.interface';
 import { Field, ID, ObjectType } from '@nestjs/graphql';
 import {
   Column,
   CreateDateColumn,
   Entity,
+  JoinTable,
   ManyToMany,
   PrimaryGeneratedColumn,
-  JoinTable,
 } from 'typeorm';
 import { Flavor } from '../flavor.entity/flavor.entity';
-import { Drink } from '../../../common/interfaces/drink.interface/drink.interface';
 
 @Entity()
-@ObjectType({ description: 'Coffee Model', implements: () => Drink })
-export class Coffee implements Drink {
+@ObjectType({ description: 'Tea Model', implements: () => Drink })
+export class Tea implements Drink {
   @PrimaryGeneratedColumn()
   @Field(() => ID, {
     description: 'Coffee unique identifier',
   })
   id: number;
 
-  @Column()
-  @Field(() => String, {
-    description: 'Coffee name',
-  })
+  @Field(() => String, { description: 'Tea name' })
   name: string;
 
   @Column()
@@ -32,7 +29,7 @@ export class Coffee implements Drink {
   brand: string;
 
   @JoinTable()
-  @ManyToMany((type) => Flavor, (flavor) => flavor.coffees, { cascade: true })
+  @ManyToMany((type) => Flavor, (flavor) => flavor.teas, { cascade: true })
   flavors?: Flavor[];
 
   @CreateDateColumn()
