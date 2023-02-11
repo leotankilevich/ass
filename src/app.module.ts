@@ -1,16 +1,14 @@
-import { Module } from '@nestjs/common';
-import { AppController } from './app.controller';
-import { AppService } from './app.service';
-import { GraphQLModule } from '@nestjs/graphql';
 import { ApolloDriver, ApolloDriverConfig } from '@nestjs/apollo';
-import { CoffeesModule } from './coffees/coffees.module';
+import { Logger, Module } from '@nestjs/common';
+import { GraphQLModule } from '@nestjs/graphql';
+import { TypeOrmModule } from '@nestjs/typeorm';
 import { join } from 'path';
 
-import { TypeOrmModule } from '@nestjs/typeorm';
+import { AppController } from './app.controller';
+import { AppService } from './app.service';
+import { AuthModule } from './auth/auth.module';
 import { DateScalar } from './common/scalars/date.scalar/date.scalar';
-import { Tea } from './teas/entities/tea.entity/tea.entity';
-import { DrinksResolver } from './drinks/drinks.resolver';
-import { TeasModule } from './teas/teas.module';
+import { UsersModule } from './users/users.module';
 
 @Module({
   imports: [
@@ -25,17 +23,18 @@ import { TeasModule } from './teas/teas.module';
       synchronize: true,
     }),
     GraphQLModule.forRoot<ApolloDriverConfig>({
+      playground: true,
       driver: ApolloDriver,
+      introspection: true,
       autoSchemaFile: join(process.cwd(), 'src/schema.gql'),
       buildSchemaOptions: {
         numberScalarMode: 'integer',
-        orphanedTypes: [Tea],
       },
     }),
-    CoffeesModule,
-    TeasModule,
+    AuthModule,
+    UsersModule,
   ],
   controllers: [AppController],
-  providers: [AppService, DateScalar, DrinksResolver],
+  providers: [AppService, Logger, DateScalar],
 })
 export class AppModule {}

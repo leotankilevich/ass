@@ -24,7 +24,9 @@ RUN npm run build
 
 ENV NODE_ENV production
 
-RUN npm ci --only=production && npm cache clean --force
+ENV JWT_SECRET super-secret
+
+RUN npm ci --omit=dev && npm cache clean --force
 
 USER node
 

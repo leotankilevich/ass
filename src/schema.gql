@@ -2,71 +2,113 @@
 # THIS FILE WAS AUTOMATICALLY GENERATED (DO NOT MODIFY)
 # ------------------------------------------------------
 
-interface Drink {
-  name: String!
-}
-
-type Flavor {
-  id: ID!
-  name: String!
-  coffees: [Coffee!]!
-}
-
-"""Coffee Model"""
-type Coffee implements Drink {
-  """Coffee name"""
-  name: String!
-
-  """Coffee unique identifier"""
+"""User Model"""
+type User {
+  """Id"""
   id: ID!
 
-  """Coffee brand"""
-  brand: String!
-  flavors: [Flavor!]!
+  """created at"""
   createdAt: Date!
+
+  """update at"""
+  updatedAt: Date!
+
+  """username"""
+  username: String!
+
+  """email"""
+  email: String!
+
+  """password"""
+  password: String!
+
+  """role"""
+  roles: [String!]
 }
 
-"""Tea Model"""
-type Tea implements Drink {
-  """Tea name"""
-  name: String!
+type UserConnection {
+  edges: [Edge!]!
+  pageInfo: PageInfo!
+}
 
-  """Coffee unique identifier"""
-  id: ID!
+type Edge {
+  node: User!
+  cursor: String!
+}
 
-  """Coffee brand"""
-  brand: String!
-  flavors: [Flavor!]
-  createdAt: Date!
+type PageInfo {
+  startCursor: String
+  endCursor: String
+  hasPreviousPage: Boolean!
+  hasNextPage: Boolean!
+}
+
+type LoginResponse {
+  access_token: String!
+  refresh_token: String!
+  user: User!
 }
 
 """Date custom scalar type"""
 scalar Date
 
 type Query {
-  drinks: [Drink!]!
-  coffees: [Coffee!]!
-  coffee(id: ID!): Coffee!
+  findAll(
+    """Paginate before opaque cursor"""
+    before: String
+
+    """Paginate after opaque cursor"""
+    after: String
+
+    """Paginate first"""
+    first: Int
+
+    """Paginate last"""
+    last: Int
+  ): UserConnection!
+  user(id: ID = null): User!
+  findByUsername(username: String = null): User!
 }
 
 type Mutation {
-  createCoffee(createCoffeeInput: CreateCoffeeInput!): Coffee!
-  updateCoffee(id: Int!, updateCoffeeInput: UpdateCoffeeInput!): Coffee!
-  removeCoffee(id: Int!): Coffee!
+  login(loginUserInput: LoginUserInput!): LoginResponse!
+  signup(createUserInput: CreateUserInput!): User!
+  createUser(createUserInput: CreateUserInput!): User!
+  createSuperAdmin(createUserInput: CreateUserInput!): User!
+  updateUser(updateUserInput: UpdateUserInput!): User!
+  removeUser(id: Int!): User!
 }
 
-"""Coffee input object type description"""
-input CreateCoffeeInput {
-  """A new coffee name"""
-  name: String!
-  brand: String!
-  flavors: [String!]
+input LoginUserInput {
+  username: String!
+  password: String!
 }
 
-"""Coffee update input object type description"""
-input UpdateCoffeeInput {
-  """A new coffee name"""
-  name: String
-  brand: String
-  flavors: [String!]
+input CreateUserInput {
+  """username"""
+  username: String!
+
+  """email"""
+  email: String!
+
+  """password"""
+  password: String!
+
+  """role"""
+  roles: [String!] = ["USER"]
+}
+
+input UpdateUserInput {
+  """username"""
+  username: String
+
+  """email"""
+  email: String
+
+  """password"""
+  password: String
+
+  """role"""
+  roles: [String!] = ["USER"]
+  id: Int!
 }
